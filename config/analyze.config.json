@@ -1,0 +1,23 @@
+{
+  "CFR_16_2021": {
+    "REG_NAME": "CFR_16_2021",
+    "HOME_BASE": "C:/Users/patri/OneDrive/Documents/20 PhD/20 ATLAS/project/atlas-journal/data/regulations/title16/stage/",
+    "VOLUMES": [
+      "CFR_16_2021.xlsx"
+    ]
+  },
+  "CFR_45_2021": {
+    "REG_NAME": "CFR_45_2021",
+    "HOME_BASE": "C:/Users/patri/OneDrive/Documents/20 PhD/20 ATLAS/project/atlas-journal/data/regulations/title45/stage/",
+    "VOLUMES": [
+      "CFR_45_2021.xlsx"
+    ]
+  },
+    "CFR_48_2021": {
+    "REG_NAME": "CFR_48_2021",
+    "HOME_BASE": "C:/Users/patri/OneDrive/Documents/20 PhD/20 ATLAS/project/atlas-journal/data/regulations/title48/stage/",
+    "VOLUMES": [
+      "CFR_48_2021.xlsx"
+    ]
+  }
+}

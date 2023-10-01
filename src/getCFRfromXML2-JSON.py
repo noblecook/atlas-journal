@@ -1,9 +1,11 @@
 import os
 import logging
 import json
+import shutil
 from datetime import datetime
 import pandas as pd
 import xml.etree.ElementTree as eTree
+import time
 
 def initializeDataFrame():
     # Define the column names
@@ -77,12 +79,13 @@ def getCFRData(reg_xml_file_location):
 
 def save_dataframe_as_excel(dff, dataSetName, cfrHomeBase):
     
-    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     fileExt = ".xlsx"
     output = "output/"
+    prefix = "_dtg-"
 
     # Define the file name and path
-    file_name = cfrHomeBase + output + dataSetName + now + fileExt
+    file_name = cfrHomeBase + output + dataSetName + prefix +  now + fileExt
 
     # Create the output directory if it doesn't exist
     output_dir = os.path.dirname(file_name)
@@ -113,9 +116,10 @@ def save_dataframe_as_csv(dff, dataSetName, cfrHomeBase):
     now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     fileExt = ".csv"
     output = "output/"
+    prefix = "_dtg-"
 
     # Define the file name and path
-    file_name = cfrHomeBase + output + dataSetName + now + fileExt
+    file_name = cfrHomeBase + output + dataSetName + prefix + now + fileExt
 
     # Create the output directory if it doesn't exist
     output_dir = os.path.dirname(file_name)
@@ -154,7 +158,7 @@ def init(cfr_with_year):
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
     # Set config file location
-    configFile = "./config/config.json"
+    configFile = "./config/pre-process.config.json"
     logging.info("Location of Config File: %s", configFile)
 
     # Load configuration from JSON file
@@ -179,16 +183,47 @@ def init(cfr_with_year):
     logging.info("Final dataset: %s", cfr_xml_data)
     return cfr_xml_data, cfr_reg_name, cfr_home_base
 
+    
+def stage_cfr_for_processing(cfrHomeBase, dataSetName, original_file_name):
+    stage = "stage/"
+    output = "output/"
+    output_source = cfrHomeBase + output
+
+    # Extract the base name of the original file
+    base_name = os.path.basename(original_file_name)
+
+    # Create the new file name
+    new_file_name = f"{dataSetName}.xlsx"
+    
+    # Construct source and destination paths
+    source_path = os.path.join(output_source, base_name)
+    destination_path = os.path.join(cfrHomeBase, stage, new_file_name)
+
+    # Create the output directory (staging area) if it doesn't exist
+    output_dir = os.path.dirname(destination_path)
+    os.makedirs(output_dir, exist_ok=True)
+
+    try:
+        # Copy and rename the file to the staging area
+        shutil.copy(source_path, destination_path)
+    except OSError as e:
+        logging.error("Cannot copy and rename file: %s", e)
+        destination_path = None
+
+    return destination_path
+
 
 def main():
-    # CFR_WITH_YEAR = "CFR_16_2021"
+    CFR_WITH_YEAR = "CFR_16_2021"
     # CFR_WITH_YEAR = "CFR_45_2021"
-    CFR_WITH_YEAR = "CFR_48_2021"
+    # CFR_WITH_YEAR = "CFR_48_2021"
     dataSet, regName, homeBase = init(CFR_WITH_YEAR)
     df_regs = extract_cfr_data(dataSet)
     logging.info("List of regulations: %s", df_regs)
     cfr_extracted_file = save_dataframe_as_excel(df_regs, regName, homeBase)
     logging.info("Saved File Name: %s", cfr_extracted_file)
+    staged_file = stage_cfr_for_processing(homeBase, regName, cfr_extracted_file)
+    logging.info("Staged File Name: %s", staged_file)
 
 
 
@@ -209,7 +244,3 @@ if __name__ == '__main__':
     logging.info("Execution time: %s", duration)
     print(f"Execution time: {duration}")
     
-
-
-
-
